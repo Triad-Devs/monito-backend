@@ -1,0 +1,2 @@
+celery -A monito.celery worker --pool=solo -l info
+celery -A monito beat -l INFO
