@@ -30,4 +30,4 @@ class Log(models.Model):
 
 
     def __str__(self):
-        return f"{self.url}__{self.status_code}__{self.req_url}"
+        return f"{self.url}__{self.status_code}"
