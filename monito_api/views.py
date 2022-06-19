@@ -32,3 +32,39 @@ class TestView(generics.GenericAPIView):
 
 
 
+class NewURLView(generics.GenericAPIView):
+
+    serializer_class = NewURLSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+
+        # print(type(request.user))
+        request.data['user']=request.user.pk
+        # print(request.data)
+
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+
+        url_data = serializer.data
+
+        # print(url_data)
+
+        url_id = url_data['id']
+        url = request.data.get('url')
+        httpMethod = request.data.get('httpMethod')
+        repeatAfter = request.data.get('repeatAfter')
+        JSONbody = request.data.get('JSONbody')
+        bearer = request.data.get('bearer')
+
+
+        schedule, created = IntervalSchedule.objects.get_or_create(
+            every=repeatAfter,
+            period=IntervalSchedule.MINUTES,
+        )
+        task = PeriodicTask.objects.create(interval=schedule, name="task_"+str(request.user.pk)+'_'+str(datetime.now().timestamp()), task='monito_api.tasks.send_request_func', args=json.dumps([url_id, url, httpMethod, JSONbody, bearer]))
+
+        return Response(url_data, status=status.HTTP_201_CREATED)
