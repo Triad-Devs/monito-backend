@@ -16,7 +16,7 @@ class Moniurl(models.Model):
     entered_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user}_____{self.httpMethod}_____{self.url}"
+        return f"{self.user}__{self.httpMethod}__{self.url}"
 
 
 class Log(models.Model):
@@ -30,4 +30,4 @@ class Log(models.Model):
 
 
     def __str__(self):
-        return f"{self.url}_____{self.status_code}_____{self.req_url}"
+        return f"{self.url}__{self.status_code}__{self.req_url}"
