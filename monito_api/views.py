@@ -4,6 +4,8 @@ from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSch
 
 import json
 import random
+import requests
+from requests.structures import CaseInsensitiveDict
 from datetime import datetime
 
 from rest_framework import generics, status
@@ -85,4 +87,23 @@ class ListURLView(generics.GenericAPIView):
         urls = Moniurl.objects.filter(user = request.user).order_by('entered_on')
         serializer = ListURLSerializer(instance=urls, many=True)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+class GetURLDetailsView(generics.GenericAPIView):
+
+    serializer_class = NewURLSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, url_id):
+
+        try:
+            url_data = Moniurl.objects.get(pk=url_id, user=request.user)
+        except ObjectDoesNotExist:
+            return Response({'response':'Invalid URL ID'})
+            
+        serializer = NewURLSerializer(instance=url_data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
