@@ -11,8 +11,11 @@ from rest_framework import permissions
 from rest_framework.response import Response
 
 from .serializers import (
-    NewURLSerializer
+    NewURLSerializer,
+    ListURLSerializer
 )
+
+from .models import Moniurl, Log
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -68,3 +71,18 @@ class NewURLView(generics.GenericAPIView):
         task = PeriodicTask.objects.create(interval=schedule, name="task_"+str(request.user.pk)+'_'+str(datetime.now().timestamp()), task='monito_api.tasks.send_request_func', args=json.dumps([url_id, url, httpMethod, JSONbody, bearer]))
 
         return Response(url_data, status=status.HTTP_201_CREATED)
+
+
+
+
+class ListURLView(generics.GenericAPIView):
+
+    serializer_class = ListURLSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+
+        urls = Moniurl.objects.filter(user = request.user).order_by('entered_on')
+        serializer = ListURLSerializer(instance=urls, many=True)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
