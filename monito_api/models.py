@@ -33,7 +33,7 @@ class Log(models.Model):
     content_length = models.IntegerField()
     time_taken = models.DecimalField(max_digits=19, decimal_places=7)
     content_type = models.CharField(max_length=30)
-
+    entered_on = models.DateTimeField(auto_now_add=True)
 
 
     def __str__(self):
