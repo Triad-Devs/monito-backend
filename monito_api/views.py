@@ -1,3 +1,4 @@
+from time import time
 from django.shortcuts import render
 
 from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule
@@ -149,3 +150,29 @@ class CurrentURLView(generics.GenericAPIView):
 
 
         return Response(r.json(), status=status.HTTP_200_OK)
+
+
+
+class StatisticsView(generics.GenericAPIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, url_id):
+
+        # DON'T DELETE THE COMMENTS
+
+        # The monitoring statistics endpoint response must contain the following:
+        #    - Total requests
+        #    - Number of successful requests (200, 201, etc)
+        #    - Number of failed requests (detect using status codes like 500, 404, etc)
+        #    - Error rate % (failed requests / total requests * 100)
+        #    - Success rate % (100 - Error rate)
+        #    - Average response time
+        #    - Response time Vs Time Graph
+        #    - Total bytes transferred
+        #    - Average bytes transferred PER DAY
+        #    - Peak Traffic date (max of daily bytes transferred)
+        #    - Bytes transferred daily Vs Time Graph = Traffic Graph
+
+
+        return Response({"url_id": url_id}, status=status.HTTP_200_OK)
