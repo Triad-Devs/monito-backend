@@ -107,3 +107,45 @@ class GetURLDetailsView(generics.GenericAPIView):
         serializer = NewURLSerializer(instance=url_data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+class CurrentURLView(generics.GenericAPIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, url_id):
+
+        try:
+            url_data = Moniurl.objects.get(pk=url_id, user=request.user)
+        except ObjectDoesNotExist:
+            return Response({'response':'Invalid URL ID'})
+
+        url = url_data.url
+        httpMethod = url_data.httpMethod
+        JSONbody = url_data.JSONbody
+        bearer = url_data.bearer
+
+        headers = CaseInsensitiveDict()
+        headers["Accept"] = "application/json"
+        headers["Authorization"] = "Bearer " + bearer
+
+
+        if httpMethod == 'GET':
+            r = requests.get(url, headers=headers)
+
+        if httpMethod == 'POST':
+            r = requests.post(url, headers=headers, data=JSONbody)
+
+        if httpMethod == 'PUT':
+            r = requests.put(url, headers=headers, data=JSONbody)
+
+        if httpMethod == 'PATCH':
+            r = requests.patch(url, headers=headers, data=JSONbody)
+
+        if httpMethod == 'DELETE':
+            r = requests.delete(url, headers=headers)
+
+
+        return Response(r.json(), status=status.HTTP_200_OK)
