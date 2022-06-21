@@ -176,8 +176,15 @@ class StatisticsView(generics.GenericAPIView):
 
         requests = Log.objects.filter(url = url_id)
 
+        success_requests = 0
+        for i in requests:
+            if i.status_code >= 200 and i.status_code <=299:
+                success_requests+=1
+            
+
 
         return Response({
             "url_id": url_id,
             "total_requests" : len(requests),
+            "success_requests": success_requests,
             }, status=status.HTTP_200_OK)
