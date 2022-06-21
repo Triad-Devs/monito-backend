@@ -27,7 +27,12 @@ from django.db.models import Count, Avg, Sum
 
 
 from statistics import mean
-# Create your views here.
+
+from django. conf import settings
+import os
+
+import matplotlib.pyplot as plt
+
 
 class TestView(generics.GenericAPIView):
 
@@ -202,7 +207,46 @@ class StatisticsView(generics.GenericAPIView):
         daily_logs_list = [logs[p]['total_bytes_transferred'] for p in range(len(logs))]
         avg_bytes_transferred = mean(daily_logs_list)
         max_of_daily_bytes_transferred = max(daily_logs_list)
+
+        #graphs
+        #Traffic Graph
+        user_dir_path = os.path.join(settings.MEDIA_ROOT, r"{}".format(request.user.id))
+        if not os.path.exists(user_dir_path):
+            os.mkdir(user_dir_path)
+            print(user_dir_path)
+            
+        traffic_graph_path = os.path.join(user_dir_path, "traffic_graph.png")
+        if os.path.exists(traffic_graph_path):
+            os.remove(traffic_graph_path)
+            print("Removed")
+        date_list = [logs[p]['day'].strftime("%m/%d/%y") for p in range(len(logs))]
         
+        plot1=plt.figure(1)
+        plt.bar(date_list, daily_logs_list)
+        
+        plt.xlabel('Date')
+        plt.ylabel('Total Bytes Transferred')
+        
+        plt.title('Traffic Graph')
+        plt.savefig(traffic_graph_path, dpi=300)
+
+        #Response time graph
+        response_time_graph_path = os.path.join(user_dir_path, "response_time_graph.png")
+        if os.path.exists(response_time_graph_path):
+            os.remove(response_time_graph_path)
+            print("Removed")
+
+        response_time_list = [x.time_taken for x in requests]
+        requests_number_list = [s for s in range(1, no_of_requests+1)]
+        plot2 = plt.figure(2)
+        plt.plot(requests_number_list, response_time_list, marker = 'x')
+
+        plt.xlabel('Requests Number')
+        plt.ylabel('Response Time(s)')
+        
+        plt.title('Response Time Graph')
+        plt.savefig(response_time_graph_path, dpi=300)
+
         return Response({
             "url_id": url_id,
             "total_requests" : no_of_requests,
@@ -215,4 +259,6 @@ class StatisticsView(generics.GenericAPIView):
             "per_day_stats": logs,
             "avg_bytes_transferred_per_day": avg_bytes_transferred,
             "max_of_daily_bytes_transferred": max_of_daily_bytes_transferred,
+            "traffic_graph_url": r"http://127.0.0.1:8000/media/{}/traffic_graph.png".format(request.user.id),
+            "response_time_graph_url": r"http://127.0.0.1:8000/media/{}/response_time_graph.png".format(request.user.id),
             }, status=status.HTTP_200_OK)
