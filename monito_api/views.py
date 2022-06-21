@@ -175,23 +175,28 @@ class StatisticsView(generics.GenericAPIView):
         #    - Bytes transferred daily Vs Time Graph = Traffic Graph
 
         requests = Log.objects.filter(url = url_id)
-
+        no_of_requests = len(requests)
         success_requests = 0
         failed_requests = 0
+        total_response_time = 0
         for i in requests:
             if i.status_code >= 200 and i.status_code <=299:
                 success_requests+=1
             if i.status_code >= 400 and i.status_code <=599:
                 failed_requests+=1
+            total_response_time+=i.time_taken
 
-        error_rate = failed_requests/len(requests)*100
+        error_rate = failed_requests/no_of_requests*100
 
         success_rate = 100-error_rate
+
+        avg_response_time = total_response_time/no_of_requests
         return Response({
             "url_id": url_id,
-            "total_requests" : len(requests),
+            "total_requests" : no_of_requests,
             "success_requests": success_requests,
             "failed_requests": failed_requests,
             "error_rate(%)": error_rate,
             "success_rate(%)": success_rate,
+            "avg_response_time(s)": avg_response_time,
             }, status=status.HTTP_200_OK)
