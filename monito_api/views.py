@@ -174,5 +174,10 @@ class StatisticsView(generics.GenericAPIView):
         #    - Peak Traffic date (max of daily bytes transferred)
         #    - Bytes transferred daily Vs Time Graph = Traffic Graph
 
+        requests = Log.objects.filter(url = url_id)
 
-        return Response({"url_id": url_id}, status=status.HTTP_200_OK)
+
+        return Response({
+            "url_id": url_id,
+            "total_requests" : len(requests),
+            }, status=status.HTTP_200_OK)
