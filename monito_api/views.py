@@ -179,12 +179,14 @@ class StatisticsView(generics.GenericAPIView):
         success_requests = 0
         failed_requests = 0
         total_response_time = 0
+        total_bytes = 0
         for i in requests:
             if i.status_code >= 200 and i.status_code <=299:
                 success_requests+=1
             if i.status_code >= 400 and i.status_code <=599:
                 failed_requests+=1
             total_response_time+=i.time_taken
+            total_bytes+=i.content_length
 
         error_rate = failed_requests/no_of_requests*100
 
@@ -199,4 +201,5 @@ class StatisticsView(generics.GenericAPIView):
             "error_rate(%)": error_rate,
             "success_rate(%)": success_rate,
             "avg_response_time(s)": avg_response_time,
+            "total_bytes_transferred": total_bytes,
             }, status=status.HTTP_200_OK)
