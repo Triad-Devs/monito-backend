@@ -185,10 +185,13 @@ class StatisticsView(generics.GenericAPIView):
                 failed_requests+=1
 
         error_rate = failed_requests/len(requests)*100
+
+        success_rate = 100-error_rate
         return Response({
             "url_id": url_id,
             "total_requests" : len(requests),
             "success_requests": success_requests,
             "failed_requests": failed_requests,
             "error_rate(%)": error_rate,
+            "success_rate(%)": success_rate,
             }, status=status.HTTP_200_OK)
