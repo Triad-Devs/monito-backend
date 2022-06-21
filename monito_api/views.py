@@ -23,8 +23,10 @@ from .models import Moniurl, Log
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.functions import TruncDay
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Sum
 
+
+from statistics import mean
 # Create your views here.
 
 class TestView(generics.GenericAPIView):
@@ -196,8 +198,9 @@ class StatisticsView(generics.GenericAPIView):
 
         avg_response_time = total_response_time/no_of_requests
 
-        logs = Log.objects.annotate(day=TruncDay('entered_on')).values('day').annotate(count=Count('url'), avg_bytes_transferred=Avg('content_length')).values('day', 'count', 'url', 'avg_bytes_transferred').filter(url=url_id) 
-
+        logs = Log.objects.annotate(day=TruncDay('entered_on')).values('day').annotate(count=Count('url'), avg_bytes_transferred=Avg('content_length'), total_bytes_transferred=Sum('content_length')).values('day', 'count', 'url', 'avg_bytes_transferred', 'total_bytes_transferred').filter(url=url_id)
+        avg_bytes_transferred = mean([logs[p]['total_bytes_transferred'] for p in range(len(logs))])
+        
         return Response({
             "url_id": url_id,
             "total_requests" : no_of_requests,
@@ -208,4 +211,5 @@ class StatisticsView(generics.GenericAPIView):
             "avg_response_time(s)": avg_response_time,
             "total_bytes_transferred": total_bytes,
             "per_day_stats": logs,
+            "avg_bytes_transferred_per_day": avg_bytes_transferred,
             }, status=status.HTTP_200_OK)
