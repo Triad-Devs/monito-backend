@@ -22,7 +22,8 @@ from .models import Moniurl, Log
 
 from django.core.exceptions import ObjectDoesNotExist
 
-
+from django.db.models.functions import TruncDay
+from django.db.models import Count, Avg
 
 # Create your views here.
 
@@ -170,6 +171,7 @@ class StatisticsView(generics.GenericAPIView):
         #    - Average response time
         #    - Response time Vs Time Graph
         #    - Total bytes transferred
+        #    - Bytes transferred PER REQUESTS PER DAY 
         #    - Average bytes transferred PER DAY
         #    - Peak Traffic date (max of daily bytes transferred)
         #    - Bytes transferred daily Vs Time Graph = Traffic Graph
@@ -193,6 +195,9 @@ class StatisticsView(generics.GenericAPIView):
         success_rate = 100-error_rate
 
         avg_response_time = total_response_time/no_of_requests
+
+        logs = Log.objects.annotate(day=TruncDay('entered_on')).values('day').annotate(count=Count('url'), avg_bytes_transferred=Avg('content_length')).values('day', 'count', 'url', 'avg_bytes_transferred').filter(url=url_id) 
+
         return Response({
             "url_id": url_id,
             "total_requests" : no_of_requests,
@@ -202,4 +207,5 @@ class StatisticsView(generics.GenericAPIView):
             "success_rate(%)": success_rate,
             "avg_response_time(s)": avg_response_time,
             "total_bytes_transferred": total_bytes,
+            "per_day_stats": logs,
             }, status=status.HTTP_200_OK)
