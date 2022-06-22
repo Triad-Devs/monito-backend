@@ -214,6 +214,7 @@ class StatisticsView(generics.GenericAPIView):
             os.mkdir(user_dir_path)
             print(user_dir_path)
 
+
         #Traffic Graph
         traffic_graph_path = os.path.join(user_dir_path, "traffic_graph.png")
         if os.path.exists(traffic_graph_path):
@@ -232,6 +233,10 @@ class StatisticsView(generics.GenericAPIView):
         plt.title('Traffic Graph')
         plt.savefig(traffic_graph_path, dpi=300)
 
+        plt.close()
+        plt.figure().clear()
+
+
         #Response time graph
         response_time_graph_path = os.path.join(user_dir_path, "response_time_graph.png")
         if os.path.exists(response_time_graph_path):
@@ -243,6 +248,7 @@ class StatisticsView(generics.GenericAPIView):
 
         requests_number_list = []
         requests_number_list = [s for s in range(1, no_of_requests+1)]
+
         plot2 = plt.figure(2)
         plt.plot(requests_number_list, response_time_list, marker = 'x')
 
@@ -251,6 +257,10 @@ class StatisticsView(generics.GenericAPIView):
         
         plt.title('Response Time Graph')
         plt.savefig(response_time_graph_path, dpi=300)
+
+        plt.close()
+        plt.figure().clear()
+
 
         return Response({
             "url_id": url_id,
