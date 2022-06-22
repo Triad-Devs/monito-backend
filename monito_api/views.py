@@ -209,16 +209,18 @@ class StatisticsView(generics.GenericAPIView):
         max_of_daily_bytes_transferred = max(daily_logs_list)
 
         #graphs
-        #Traffic Graph
         user_dir_path = os.path.join(settings.MEDIA_ROOT, r"{}".format(request.user.id))
         if not os.path.exists(user_dir_path):
             os.mkdir(user_dir_path)
             print(user_dir_path)
-            
+
+        #Traffic Graph
         traffic_graph_path = os.path.join(user_dir_path, "traffic_graph.png")
         if os.path.exists(traffic_graph_path):
             os.remove(traffic_graph_path)
             print("Removed")
+
+        date_list = []
         date_list = [logs[p]['day'].strftime("%m/%d/%y") for p in range(len(logs))]
         
         plot1=plt.figure(1)
@@ -236,7 +238,10 @@ class StatisticsView(generics.GenericAPIView):
             os.remove(response_time_graph_path)
             print("Removed")
 
+        response_time_list = []
         response_time_list = [x.time_taken for x in requests]
+
+        requests_number_list = []
         requests_number_list = [s for s in range(1, no_of_requests+1)]
         plot2 = plt.figure(2)
         plt.plot(requests_number_list, response_time_list, marker = 'x')
