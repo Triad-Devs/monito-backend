@@ -1,3 +1,7 @@
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 from time import time
 from django.shortcuts import render
 
@@ -31,7 +35,6 @@ from statistics import mean
 from django. conf import settings
 import os
 
-import matplotlib.pyplot as plt
 
 
 class TestView(generics.GenericAPIView):
@@ -209,7 +212,7 @@ class StatisticsView(generics.GenericAPIView):
         max_of_daily_bytes_transferred = max(daily_logs_list)
 
         #graphs
-        user_dir_path = os.path.join(settings.MEDIA_ROOT, r"{}".format(request.user.id))
+        user_dir_path = os.path.join(settings.MEDIA_ROOT, r"{}{}".format(request.user.id, url_id))
         if not os.path.exists(user_dir_path):
             os.mkdir(user_dir_path)
             print(user_dir_path)
@@ -274,6 +277,6 @@ class StatisticsView(generics.GenericAPIView):
             "per_day_stats": logs,
             "avg_bytes_transferred_per_day": avg_bytes_transferred,
             "max_of_daily_bytes_transferred": max_of_daily_bytes_transferred,
-            "traffic_graph_url": r"http://127.0.0.1:8000/media/{}/traffic_graph.png".format(request.user.id),
-            "response_time_graph_url": r"http://127.0.0.1:8000/media/{}/response_time_graph.png".format(request.user.id),
+            "traffic_graph_url": r"http://127.0.0.1:8000/media/{}{}/traffic_graph.png".format(request.user.id, url_id),
+            "response_time_graph_url": r"http://127.0.0.1:8000/media/{}{}/response_time_graph.png".format(request.user.id, url_id),
             }, status=status.HTTP_200_OK)
