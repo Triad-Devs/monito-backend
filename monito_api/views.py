@@ -301,6 +301,6 @@ class StatisticsView(generics.GenericAPIView):
             "per_day_stats": logs,
             "avg_bytes_transferred_per_day": avg_bytes_transferred,
             "max_of_daily_bytes_transferred": max_of_daily_bytes_transferred,
-            "traffic_graph_url": r"http://127.0.0.1:8000/media/{}{}/traffic_graph.png".format(request.user.id, url_id),
-            "response_time_graph_url": r"http://127.0.0.1:8000/media/{}{}/response_time_graph.png".format(request.user.id, url_id),
+            "traffic_graph_url": r"https://monito-backend-production.up.railway.app/media/{}{}/traffic_graph.png".format(request.user.id, url_id),
+            "response_time_graph_url": r"https://monito-backend-production.up.railway.app/media/{}{}/response_time_graph.png".format(request.user.id, url_id),
             }, status=status.HTTP_200_OK)
