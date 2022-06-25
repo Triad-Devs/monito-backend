@@ -27,11 +27,16 @@ SECRET_KEY = config('SECRET_KEY')
 # JWT SECRET KEY
 JWT_SECRET_KEY = config('JWT_SECRET_KEY')
 
+PYTHON_ENV = config('PYTHON_ENV')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if 'SECRET_KEY' in os.environ:
+    SECRET_KEY = os.environ['SECRET_KEY']
+    DEBUG = False
+
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -76,6 +81,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+	'https://monito-app.netlify.app/'
 ]
 
 
@@ -103,12 +109,31 @@ WSGI_APPLICATION = 'monito.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+if PYTHON_ENV == 'DEVELOPMENT' :
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.sqlite3',
+			'NAME': BASE_DIR / 'db.sqlite3',
+		}
+	}
+
+	CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+
+	
+else :
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': os.environ["PGDATABASE"],
+			'USER': os.environ["PGUSER"],
+			'PASSWORD': os.environ["PGPASSWORD"],
+			'HOST': os.environ["PGHOST"],
+			'PORT': os.environ["PGPORT"],
+		}
+	}
+
+	# redis://${{ REDISUSER }}:${{ REDISPASSWORD }}@${{ REDISHOST }}:${{ REDISPORT }}
+	CELERY_BROKER_URL=r"redis://{}:{}@{}:{}".format(os.environ["REDISUSER"], os.environ["REDISPASSWORD"], os.environ["REDISHOST"], os.environ["REDISPORT"])
 
 
 # Password validation
@@ -159,7 +184,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 #CELERY SETTINGS
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
