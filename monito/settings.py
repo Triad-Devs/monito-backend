@@ -36,7 +36,7 @@ if 'SECRET_KEY' in os.environ:
     SECRET_KEY = os.environ['SECRET_KEY']
     DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["monito-app.netlify.app", "monito-backend-production.up.railway.app"]
 
 
 # Application definition
@@ -83,8 +83,7 @@ MIDDLEWARE = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-	'https://monito-app.netlify.app/'
+	'https://monito-app.netlify.app'
 ]
 
 
