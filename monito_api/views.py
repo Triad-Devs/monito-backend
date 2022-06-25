@@ -1,6 +1,7 @@
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+import multiprocessing as mp
+
+import django
+django.setup()
 
 from time import time
 from django.shortcuts import render
@@ -37,6 +38,66 @@ import os
 
 
 
+
+def traffic_graph(data, user_dir_path, logs, daily_logs_list):
+    print(data)
+    import matplotlib.pyplot as plt
+
+    #Traffic Graph
+    traffic_graph_path = os.path.join(user_dir_path, "traffic_graph.png")
+    if os.path.exists(traffic_graph_path):
+        os.remove(traffic_graph_path)
+        print("Removed")
+
+    date_list = []
+    date_list = [logs[p]['day'].strftime("%m/%d/%y") for p in range(len(logs))]
+    
+    plot1=plt.figure(1)
+    plt.bar(date_list, daily_logs_list)
+    
+    plt.xlabel('Date')
+    plt.ylabel('Total Bytes Transferred')
+    
+    plt.title('Traffic Graph')
+    plt.savefig(traffic_graph_path, dpi=300)
+
+    plt.close()
+    plt.figure().clear()
+
+
+
+def response_time_graph(data, user_dir_path, no_of_requests, req):
+    print(data)
+    import matplotlib.pyplot as plt
+
+    #Response time graph
+    response_time_graph_path = os.path.join(user_dir_path, "response_time_graph.png")
+    if os.path.exists(response_time_graph_path):
+        os.remove(response_time_graph_path)
+        print("Removed")
+
+    response_time_list = []
+    response_time_list = [x.time_taken for x in req]
+
+    requests_number_list = []
+    requests_number_list = [s for s in range(1, no_of_requests+1)]
+
+    plot2 = plt.figure(2)
+    plt.plot(requests_number_list, response_time_list, marker = 'x')
+
+    plt.xlabel('Requests Number')
+    plt.ylabel('Response Time(s)')
+    
+    plt.title('Response Time Graph')
+    plt.savefig(response_time_graph_path, dpi=300)
+
+    plt.close()
+    plt.figure().clear()
+
+
+
+
+
 class TestView(generics.GenericAPIView):
 
     def get(self, request):
@@ -46,6 +107,7 @@ class TestView(generics.GenericAPIView):
         )
         task = PeriodicTask.objects.create(interval=schedule, name="send_request_task_"+str(random.randint(3,100)), task='monito_api.tasks.send_request_func', args=json.dumps([1, 'https://jsonplaceholder.typicode.com/todos/1', 'GET', {}, ""]))
         return Response({'resp': "It's Working"}, status=status.HTTP_200_OK)
+
 
 
 
@@ -164,6 +226,7 @@ class CurrentURLView(generics.GenericAPIView):
 
 
 
+
 class StatisticsView(generics.GenericAPIView):
 
     permission_classes = (permissions.IsAuthenticated,)
@@ -218,51 +281,12 @@ class StatisticsView(generics.GenericAPIView):
             print(user_dir_path)
 
 
-        #Traffic Graph
-        traffic_graph_path = os.path.join(user_dir_path, "traffic_graph.png")
-        if os.path.exists(traffic_graph_path):
-            os.remove(traffic_graph_path)
-            print("Removed")
-
-        date_list = []
-        date_list = [logs[p]['day'].strftime("%m/%d/%y") for p in range(len(logs))]
-        
-        plot1=plt.figure(1)
-        plt.bar(date_list, daily_logs_list)
-        
-        plt.xlabel('Date')
-        plt.ylabel('Total Bytes Transferred')
-        
-        plt.title('Traffic Graph')
-        plt.savefig(traffic_graph_path, dpi=300)
-
-        plt.close()
-        plt.figure().clear()
-
-
-        #Response time graph
-        response_time_graph_path = os.path.join(user_dir_path, "response_time_graph.png")
-        if os.path.exists(response_time_graph_path):
-            os.remove(response_time_graph_path)
-            print("Removed")
-
-        response_time_list = []
-        response_time_list = [x.time_taken for x in requests]
-
-        requests_number_list = []
-        requests_number_list = [s for s in range(1, no_of_requests+1)]
-
-        plot2 = plt.figure(2)
-        plt.plot(requests_number_list, response_time_list, marker = 'x')
-
-        plt.xlabel('Requests Number')
-        plt.ylabel('Response Time(s)')
-        
-        plt.title('Response Time Graph')
-        plt.savefig(response_time_graph_path, dpi=300)
-
-        plt.close()
-        plt.figure().clear()
+        p1 = mp.Process(target=traffic_graph, args=("works", user_dir_path, logs, daily_logs_list))
+        p2 = mp.Process(target=response_time_graph, args=("works", user_dir_path, no_of_requests, requests))
+        p1.start()
+        p2.start()
+        p1.join()
+        p2.join()
 
 
         return Response({
