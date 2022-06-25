@@ -49,6 +49,8 @@ def traffic_graph(data, user_dir_path, logs, daily_logs_list):
         os.remove(traffic_graph_path)
         print("Removed")
 
+    print("traffic_graph_path", traffic_graph_path)
+
     date_list = []
     date_list = [logs[p]['day'].strftime("%m/%d/%y") for p in range(len(logs))]
     
@@ -75,6 +77,8 @@ def response_time_graph(data, user_dir_path, no_of_requests, req):
     if os.path.exists(response_time_graph_path):
         os.remove(response_time_graph_path)
         print("Removed")
+
+    print("response_time_graph_path", response_time_graph_path)
 
     response_time_list = []
     response_time_list = [x.time_taken for x in req]
