@@ -269,7 +269,8 @@ class StatisticsView(generics.GenericAPIView):
 
         avg_response_time = total_response_time/no_of_requests
 
-        logs = Log.objects.annotate(day=TruncDay('entered_on')).values('day').annotate(count=Count('url'), avg_bytes_transferred=Avg('content_length'), total_bytes_transferred=Sum('content_length')).values('day', 'count', 'url', 'avg_bytes_transferred', 'total_bytes_transferred').filter(url=url_id)
+        logs = Log.objects.annotate(day=TruncDay('entered_on')).values('day').annotate(count=Count('url'), avg_bytes_transferred=Avg('content_length'), total_bytes_transferred=Sum('content_length')).values('day', 'count', 'url', 'avg_bytes_transferred', 'total_bytes_transferred').filter(url=url_id).order_by('day')
+        print(logs)
         daily_logs_list = [logs[p]['total_bytes_transferred'] for p in range(len(logs))]
         avg_bytes_transferred = mean(daily_logs_list)
         max_of_daily_bytes_transferred = max(daily_logs_list)
