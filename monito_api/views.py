@@ -200,6 +200,7 @@ class CurrentURLView(generics.GenericAPIView):
         httpMethod = url_data.httpMethod
         JSONbody = url_data.JSONbody
         bearer = url_data.bearer
+        isAPI = url_data.isAPI
 
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
@@ -221,8 +222,27 @@ class CurrentURLView(generics.GenericAPIView):
         if httpMethod == 'DELETE':
             r = requests.delete(url, headers=headers)
 
+        status_code = r.status_code
+        status_text = r.reason
+        content_length = len(r.content)
+        time_taken = r.elapsed.total_seconds()
+        content_type = r.headers['Content-Type']
 
-        return Response(r.json(), status=status.HTTP_200_OK)
+        if(isAPI):
+            jsonBody = r.json()
+        else:
+            jsonBody = None
+
+        return Response({
+            "isAPI": isAPI,
+            "httpMethod": httpMethod,
+            "status_code": status_code,
+            "status_text": status_text,
+            "content_length": content_length,
+            "time_taken": time_taken,
+            "content_type": content_type,
+            "jsonBody": jsonBody,
+        }, status=status.HTTP_200_OK)
 
 
 
