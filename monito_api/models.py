@@ -20,6 +20,8 @@ class Moniurl(models.Model):
     authReq = models.BooleanField()
     bearer = models.CharField(max_length=100, blank=True)
     entered_on = models.DateTimeField(auto_now_add=True)
+    failedCount = models.IntegerField(default=0)
+    alertThreshold = models.IntegerField()
 
 
     def __str__(self):
