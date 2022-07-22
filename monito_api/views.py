@@ -1,6 +1,7 @@
 import multiprocessing as mp
 
 import django
+from matplotlib.pyplot import cla
 django.setup()
 
 from time import time
@@ -33,6 +34,7 @@ from django.db.models import Count, Avg, Sum
 
 from statistics import mean
 
+from urllib.parse import urlparse
 from django. conf import settings
 import os
 
@@ -325,3 +327,17 @@ class StatisticsView(generics.GenericAPIView):
             "traffic_graph_url": r"http://127.0.0.1:8000/media/{}{}/traffic_graph.png".format(request.user.id, url_id),
             "response_time_graph_url": r"http://127.0.0.1:8000/media/{}{}/response_time_graph.png".format(request.user.id, url_id),
             }, status=status.HTTP_200_OK)
+
+
+class checkSecurityView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        website_url= request.data.get('url')
+        domain = urlparse(website_url).netloc
+        print(domain)
+        security_report_url = 'https://sitecheck.sucuri.net/results/'+ website_url
+
+        return Response({
+            'security_report_url': security_report_url
+        }, status=status.HTTP_200_OK)

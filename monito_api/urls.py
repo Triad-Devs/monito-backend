@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TestView, NewURLView, ListURLView, GetURLDetailsView, CurrentURLView, StatisticsView
+from .views import TestView, NewURLView, ListURLView, GetURLDetailsView, CurrentURLView, StatisticsView, checkSecurityView
 
 urlpatterns = [
 
@@ -9,5 +9,5 @@ urlpatterns = [
     path('monitor/url_details/<int:url_id>', GetURLDetailsView.as_view(), name="url_details"),
     path('monitor/execute/<int:url_id>', CurrentURLView.as_view(), name="execute_once"),
     path('monitor/stats/<int:url_id>', StatisticsView.as_view(), name="stats"),
-
+    path('monitor/checksecurity', checkSecurityView.as_view(), name='checksecurity')
 ] 
